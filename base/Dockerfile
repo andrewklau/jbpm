@@ -23,13 +23,13 @@ ENV KIE_SERVER_PROFILE standalone-full
 ####### JBPM-WB ############
 RUN curl -o $HOME/$KIE_CONTEXT_PATH.war $KIE_REPOSITORY/org/kie/kie-wb-distribution-wars/$KIE_VERSION/kie-wb-distribution-wars-$KIE_VERSION-$KIE_CLASSIFIER.war && \
 unzip -q $HOME/$KIE_CONTEXT_PATH.war -d $JBOSS_HOME/standalone/deployments/$KIE_CONTEXT_PATH.war &&  \
-touch $JBOSS_HOME/standalone/deployments/$KIE_CONTEXT_PATH.war.dodeploy &&  \ 
+touch $JBOSS_HOME/standalone/deployments/$KIE_CONTEXT_PATH.war.dodeploy &&  \
 rm -rf $HOME/$KIE_CONTEXT_PATH.war
 
 ####### JBPM DASHBUILDER ############
 RUN curl -o $HOME/$DASHBUILDER_CONTEXT_PATH.war $KIE_REPOSITORY/org/jbpm/dashboard/jbpm-dashboard-distributions/$KIE_VERSION/jbpm-dashboard-distributions-$KIE_VERSION-$KIE_CLASSIFIER.war && \
 unzip -q $HOME/$DASHBUILDER_CONTEXT_PATH.war -d $JBOSS_HOME/standalone/deployments/$DASHBUILDER_CONTEXT_PATH.war &&  \
-touch $JBOSS_HOME/standalone/deployments/$DASHBUILDER_CONTEXT_PATH.war.dodeploy &&  \ 
+touch $JBOSS_HOME/standalone/deployments/$DASHBUILDER_CONTEXT_PATH.war.dodeploy &&  \
 rm -rf $HOME/$DASHBUILDER_CONTEXT_PATH.war
 
 ####### MVN REPO ############
@@ -44,6 +44,11 @@ ADD etc/start_jbpm-wb.sh $JBOSS_HOME/bin/start_jbpm-wb.sh
 RUN chown jboss:jboss $JBOSS_HOME/standalone/deployments/*
 RUN chown jboss:jboss $JBOSS_HOME/bin/start_jbpm-wb.sh
 
+# Fix permissions for running in openshift
+COPY fix-permissions /usr/local/bin
+RUN usermod -g root jboss && \
+    fix-permissions $JBOSS_HOME
+    
 ####### CUSTOM JBOSS USER ############
 # Switchback to jboss user
 USER jboss

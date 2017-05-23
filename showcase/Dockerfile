@@ -21,8 +21,13 @@ ADD etc/jbpm-roles.properties $JBOSS_HOME/standalone/configuration/jbpm-roles.pr
 # Added files are chowned to root user, change it to the jboss one.
 USER root
 RUN chown jboss:jboss $JBOSS_HOME/standalone/configuration/standalone-full-jbpm.xml && \
-chown jboss:jboss $JBOSS_HOME/standalone/configuration/jbpm-users.properties && \ 
+chown jboss:jboss $JBOSS_HOME/standalone/configuration/jbpm-users.properties && \
 chown jboss:jboss $JBOSS_HOME/standalone/configuration/jbpm-roles.properties
+
+# Fix permissions for running in openshift
+COPY fix-permissions /usr/local/bin
+RUN usermod -g root jboss && \
+    fix-permissions $JBOSS_HOME
 
 # Switchback to jboss user
 USER jboss
